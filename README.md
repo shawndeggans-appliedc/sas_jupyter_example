@@ -1,87 +1,123 @@
-# SAS-Python Integration Pipeline Documentation
+# Jupyter Notebook Pipeline Example
+
+This project demonstrates how to create a production-ready data pipeline using multiple Jupyter notebooks, where one notebook orchestrates the execution of another. It simulates a common enterprise scenario where analytical procedures (typically in SAS, R, or specialized SQL procedures) need to be executed for multiple providers, with results aggregated into individual reports.
 
 ## Overview
-This project implements a production data pipeline using Jupyter Notebooks to orchestrate interactions between Python and SAS for payment provider analytics. The pipeline processes provider data through SAS analytics procedures and generates Excel reports using Python.
 
-## System Requirements
+The project consists of two main notebooks:
+1. `py_example.ipynb` - The orchestrator notebook that manages the pipeline execution
+2. `sql_example.ipynb` - The analytical notebook containing SQL procedures
 
-### Software Dependencies
-1. Jupyter Notebook environment
-2. Python 3.x
-   - pandas (for CSV and Excel operations)
-   - saspy (for SAS integration)
-3. SAS installation with appropriate licenses
-4. Configuration for SAS-Python integration
+This pattern can be useful when:
+- Converting legacy SAS/SQL procedures to modern Python pipelines
+- Maintaining separation between business logic and orchestration
+- Running the same analysis for multiple clients/providers
+- Generating individual reports from a standardized analytical process
 
-### Input Requirements
-1. CSV file containing:
-   - Payment provider identification
-   - Data source location/path
-   - Provider-specific parameters
-2. SAS data sources as specified in the CSV
-3. Proper read/write permissions for all file locations
+## Components
 
-### Output Requirements
-1. Excel file containing processed analytics results
-2. Proper error handling and logging
-3. Execution audit trail
+### Python Orchestrator (`py_example.ipynb`)
 
-## Security Considerations
-1. Secure handling of provider data
-2. Access control for input/output locations
-3. Credential management for SAS integration
-4. Audit logging of all data access
+This notebook manages the pipeline execution:
+- Loads provider data from a predefined structure
+- Injects parameters into the SQL notebook
+- Executes the SQL notebook for each provider
+- Generates Excel reports from the results
 
-## Error Handling Requirements
-1. Validation of CSV input format
-2. SAS procedure execution status checking
-3. Data quality checks at each stage
-4. Proper exception handling and reporting
-5. Recovery procedures for failed executions
+Key functions:
+- `execute_sql_notebook()`: Executes the SQL notebook with provider-specific parameters
+- `create_excel_report()`: Generates provider-specific Excel reports
+- `process_providers()`: Main processing loop for all providers
 
-## Performance Requirements
-1. Efficient handling of large datasets
-2. Resource monitoring during SAS procedures
-3. Optimization of data transfers between Python and SAS
-4. Memory management for Excel file generation
+### SQL Analysis (`sql_example.ipynb`)
 
-## Maintenance Requirements
-1. Documentation of all dependencies
-2. Version control for notebooks
-3. Testing procedures
-4. Backup and recovery procedures
+This notebook contains the analytical procedures:
+- Creates a temporary SQLite database
+- Performs various payment analyses using SQL
+- Returns structured results for report generation
 
-```mermaid
-flowchart TD
-    subgraph Inputs
-        A[Provider CSV] --> B[Python Reader]
-        C[SAS Data Source] --> E
-    end
+Analysis includes:
+- Payment summaries
+- Monthly trends
+- Payment distribution statistics
 
-    subgraph Python Processing
-        B --> D[Extract Provider Info]
-        D --> E[SAS Integration Layer]
-    end
+## Sample Data Structure
 
-    subgraph SAS Processing
-        E --> F[Execute SAS Analytics]
-        F --> G[Generate Results]
-    end
-
-    subgraph Python Output
-        G --> H[Process SAS Results]
-        H --> I[Generate Excel Report]
-    end
-
-    subgraph Error Handling
-        J[Input Validation]
-        K[SAS Execution Monitor]
-        L[Data Quality Checks]
-        M[Error Logging]
-    end
-
-    B --> J
-    E --> K
-    G --> L
-    J & K & L --> M
+The pipeline expects provider data in the following format:
+```python
+provider_data = {
+    'provider_id': [1001, 1002, 1003],
+    'provider_name': ['Alpha Payments', 'Beta Financial', 'Gamma Processing'],
+    'month_1_payments': [150000, 225000, 175000],
+    'month_2_payments': [165000, 215000, 180000],
+    'month_3_payments': [175000, 235000, 165000],
+    'month_4_payments': [180000, 245000, 190000],
+    'output_file': ['alpha_report.xlsx', 'beta_report.xlsx', 'gamma_report.xlsx']
+}
 ```
+
+## Setup and Requirements
+
+### Dependencies
+```
+pandas>=2.0.0
+notebook>=7.0.0
+nbformat>=5.9.0
+nbconvert>=7.8.0
+openpyxl>=3.1.2
+```
+
+### Installation
+1. Create a Python virtual environment
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+2. Install required packages
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+1. Ensure both notebooks are in the same directory
+2. Open and run `py_example.ipynb`
+3. The notebook will:
+   - Create sample provider data
+   - Execute the SQL analysis for each provider
+   - Generate individual Excel reports
+
+## Output
+
+For each provider, an Excel file is generated containing:
+- Payment summary statistics
+- Monthly payment trends
+- Payment distribution analysis
+
+## Extending the Project
+
+This example can be extended by:
+1. Adding more complex SQL analyses
+2. Modifying the report format
+3. Adding data validation
+4. Implementing error recovery
+5. Adding logging and monitoring
+6. Integrating with scheduling systems
+
+## Best Practices
+
+1. Keep analytical logic (SQL) separate from orchestration (Python)
+2. Use proper error handling and logging
+3. Parameterize all provider-specific values
+4. Maintain clear documentation
+5. Include data validation steps
+6. Consider performance optimization for large datasets
+
+## Limitations
+
+1. In-memory SQLite database (could be replaced with production database)
+2. Basic error handling
+3. Simple report format
+4. No data validation
+5. No performance optimization
