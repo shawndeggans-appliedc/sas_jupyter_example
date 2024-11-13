@@ -1,123 +1,208 @@
-# Jupyter Notebook Pipeline Example
-
-This project demonstrates how to create a production-ready data pipeline using multiple Jupyter notebooks, where one notebook orchestrates the execution of another. It simulates a common enterprise scenario where analytical procedures (typically in SAS, R, or specialized SQL procedures) need to be executed for multiple providers, with results aggregated into individual reports.
+# Jupyter Notebook Tutorial: Inter-Notebook Execution and Data Analysis
 
 ## Overview
+This tutorial demonstrates how to use Jupyter notebooks for data analysis workflows, specifically showing how one notebook can execute another. This pattern is particularly useful when:
+- Breaking down complex workflows into manageable pieces
+- Creating reusable analysis components
+- Replacing legacy systems (like SAS) with more modern Python-based solutions
 
-The project consists of two main notebooks:
-1. `py_example.ipynb` - The orchestrator notebook that manages the pipeline execution
-2. `sql_example.ipynb` - The analytical notebook containing SQL procedures
+## Repository Contents
+- `py_example.ipynb`: Main notebook that processes provider data and coordinates analysis
+- `sql_example.ipynb`: Analysis notebook that performs calculations and generates reports
+- Sample data for payment processing analysis
 
-This pattern can be useful when:
-- Converting legacy SAS/SQL procedures to modern Python pipelines
-- Maintaining separation between business logic and orchestration
-- Running the same analysis for multiple clients/providers
-- Generating individual reports from a standardized analytical process
-
-## Components
-
-### Python Orchestrator (`py_example.ipynb`)
-
-This notebook manages the pipeline execution:
-- Loads provider data from a predefined structure
-- Injects parameters into the SQL notebook
-- Executes the SQL notebook for each provider
-- Generates Excel reports from the results
-
-Key functions:
-- `execute_sql_notebook()`: Executes the SQL notebook with provider-specific parameters
-- `create_excel_report()`: Generates provider-specific Excel reports
-- `process_providers()`: Main processing loop for all providers
-
-### SQL Analysis (`sql_example.ipynb`)
-
-This notebook contains the analytical procedures:
-- Creates a temporary SQLite database
-- Performs various payment analyses using SQL
-- Returns structured results for report generation
-
-Analysis includes:
-- Payment summaries
-- Monthly trends
-- Payment distribution statistics
-
-## Sample Data Structure
-
-The pipeline expects provider data in the following format:
-```python
-provider_data = {
-    'provider_id': [1001, 1002, 1003],
-    'provider_name': ['Alpha Payments', 'Beta Financial', 'Gamma Processing'],
-    'month_1_payments': [150000, 225000, 175000],
-    'month_2_payments': [165000, 215000, 180000],
-    'month_3_payments': [175000, 235000, 165000],
-    'month_4_payments': [180000, 245000, 190000],
-    'output_file': ['alpha_report.xlsx', 'beta_report.xlsx', 'gamma_report.xlsx']
-}
-```
-
-## Setup and Requirements
-
-### Dependencies
-```
-pandas>=2.0.0
-notebook>=7.0.0
-nbformat>=5.9.0
-nbconvert>=7.8.0
-openpyxl>=3.1.2
-```
-
-### Installation
-1. Create a Python virtual environment
+## Prerequisites
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install pandas numpy openpyxl
 ```
 
-2. Install required packages
-```bash
-pip install -r requirements.txt
-```
+## Detailed Walkthrough
 
-## Usage
+### Main Notebook (py_example.ipynb)
 
-1. Ensure both notebooks are in the same directory
-2. Open and run `py_example.ipynb`
-3. The notebook will:
-   - Create sample provider data
-   - Execute the SQL analysis for each provider
-   - Generate individual Excel reports
+This notebook orchestrates the overall workflow and handles data processing for multiple providers.
 
-## Output
+#### Cell-by-Cell Explanation
 
-For each provider, an Excel file is generated containing:
-- Payment summary statistics
-- Monthly payment trends
-- Payment distribution analysis
+1. **Import Libraries**
+   ```python
+   import pandas as pd
+   import logging
+   ```
+   - Imports pandas for data manipulation
+   - Imports logging to track execution progress and errors
 
-## Extending the Project
+2. **Logging Setup**
+   ```python
+   logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+   ```
+   - Configures basic logging with timestamp, log level, and message
+   - Helps track the execution flow and debug issues
 
-This example can be extended by:
-1. Adding more complex SQL analyses
-2. Modifying the report format
-3. Adding data validation
-4. Implementing error recovery
-5. Adding logging and monitoring
-6. Integrating with scheduling systems
+3. **Sample Data Creation**
+   ```python
+   provider_data = {
+       'provider_id': [1001, 1002, 1003],
+       'provider_name': ['Alpha Payments', 'Beta Financial', 'Gamma Processing'],
+       ...
+   }
+   df_providers = pd.DataFrame(provider_data)
+   ```
+   - Creates a sample dataset of payment providers
+   - Includes monthly payment data and output file names
+   - Structures data in a pandas DataFrame for easy manipulation
 
-## Best Practices
+4. **Analysis Notebook Execution Function**
+   ```python
+   def execute_analysis_notebook(provider_row):
+       # Function implementation
+   ```
+   - Takes a single provider's data as input
+   - Sets up global variables for the analysis notebook
+   - Executes the analysis notebook using the `%run` magic command
+   - Returns analysis results
 
-1. Keep analytical logic (SQL) separate from orchestration (Python)
-2. Use proper error handling and logging
-3. Parameterize all provider-specific values
-4. Maintain clear documentation
-5. Include data validation steps
-6. Consider performance optimization for large datasets
+5. **Excel Report Generation**
+   ```python
+   def create_excel_report(results, output_file):
+       # Function implementation
+   ```
+   - Takes analysis results and creates formatted Excel reports
+   - Creates separate sheets for different types of analysis
+   - Handles file writing and error checking
 
-## Limitations
+6. **Main Processing Loop**
+   ```python
+   def process_providers():
+       # Function implementation
+   ```
+   - Coordinates the entire workflow
+   - Iterates through providers
+   - Handles errors gracefully
+   - Logs progress and completion
 
-1. In-memory SQLite database (could be replaced with production database)
-2. Basic error handling
-3. Simple report format
-4. No data validation
-5. No performance optimization
+### Analysis Notebook (sql_example.ipynb)
+
+This notebook performs the actual analysis on provider data. It's designed to be called by the main notebook but can also be run independently for testing.
+
+#### Cell-by-Cell Explanation
+
+1. **Library Imports**
+   ```python
+   import pandas as pd
+   from IPython.display import display
+   ```
+   - Imports required libraries for analysis and display
+
+2. **Data Preparation**
+   ```python
+   analysis_data = {
+       'month_number': [1, 2, 3, 4],
+       'payment_amount': [month_1_payments, month_2_payments, month_3_payments, month_4_payments],
+       ...
+   }
+   df = pd.DataFrame(analysis_data)
+   ```
+   - Creates a structured DataFrame from the input parameters
+   - Organizes data for analysis
+
+3. **Analysis Calculations**
+   ```python
+   # Payment Summary
+   summary = {
+       'provider_id': [provider_id],
+       'provider_name': [provider_name],
+       ...
+   }
+   ```
+   - Calculates key metrics:
+     - Total payments
+     - Average monthly payments
+     - Payment fluctuation
+     - Growth rates
+   - Creates structured output for reporting
+
+4. **Results Display**
+   ```python
+   print("\nPayment Summary:")
+   display(pd.DataFrame(results['summary']))
+   ...
+   ```
+   - Formats and displays analysis results
+   - Shows interactive tables in the notebook
+   - Provides visual verification of results
+
+## Using the Notebooks
+
+1. **Setup**
+   - Ensure all required packages are installed
+   - Place both notebooks in the same directory
+
+2. **Running the Analysis**
+   - Open and run `py_example.ipynb`
+   - The notebook will:
+     - Process each provider
+     - Generate analysis
+     - Create Excel reports
+
+3. **Customizing the Analysis**
+   - Modify the provider data in `py_example.ipynb`
+   - Adjust calculations in `sql_example.ipynb`
+   - Add new analysis types as needed
+
+## Tips and Best Practices
+
+1. **Parameter Passing**
+   - The main notebook sets global variables that are used by the analysis notebook
+   - This approach simulates parameter passing between notebooks
+   - In production, consider using more robust parameter passing methods
+
+2. **Error Handling**
+   - Both notebooks include error handling to prevent crashes
+   - Errors are logged for debugging
+   - The main process continues even if one provider fails
+
+3. **Output Files**
+   - Excel reports are named based on the provider
+   - Each report includes multiple sheets for different analyses
+   - Reports are automatically saved in the working directory
+
+4. **Logging**
+   - Progress is logged with timestamps
+   - Errors are captured and logged
+   - Makes debugging and monitoring easier
+
+## Common Issues and Solutions
+
+1. **Missing Libraries**
+   - Error: ImportError
+   - Solution: Run `pip install` for required packages
+
+2. **File Access Issues**
+   - Error: PermissionError when writing Excel files
+   - Solution: Ensure you have write permissions in the directory
+
+3. **Data Type Errors**
+   - Error: TypeError in calculations
+   - Solution: Verify data types in the provider_data dictionary
+
+## Extending the Tutorial
+
+This basic example can be extended in several ways:
+- Add more complex analyses
+- Implement data visualization
+- Add data validation
+- Include error reporting
+- Add configuration files
+- Implement parallel processing
+
+## Conclusion
+
+This tutorial demonstrates key concepts in Jupyter notebook workflows:
+- Notebook-to-notebook execution
+- Data analysis with pandas
+- Report generation
+- Error handling and logging
+- Code organization and structure
+
+These patterns can be adapted for more complex analysis needs or different data processing requirements.
